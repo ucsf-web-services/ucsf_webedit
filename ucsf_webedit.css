@@ -1,0 +1,98 @@
+/* float style classes */
+.webedit-left > * {
+	float:left;
+}
+.webedit-right > * {
+	float:right;
+}
+
+.webedit-clearfix {
+	clear:both;
+}
+
+
+
+/* Alignment classes */
+.webedit-alignleft {
+	text-align: left;
+}
+.webedit-aligncenter {
+	text-align: center;
+}
+.webedit-alignright {
+	text-align: right;
+}
+/* don't define this
+.webedit-alignjustify {
+	text-align: justify;
+}*/
+
+/* indentation classes */
+.webedit-indent-1:not(.webedit-alignright) {
+	margin-left: 5em;
+}
+.webedit-indent-1:not(.webedit-alignright) {
+	margin-left: 10em;
+}
+.webedit-indent-1:not(.webedit-alignright) {
+	margin-left: 15em;
+}
+.webedit-indent-1:not(.webedit-alignright) {
+	margin-left: 20em;
+}
+.webedit-indent-1.webedit-alignright {
+	margin-right: 5em;
+}
+.webedit-indent-2.webedit-alignright {
+	margin-right: 10em;
+}
+.webedit-indent-3.webedit-alignright {
+	margin-right: 15em;
+}
+.webedit-indent-4.webedit-alignright {
+	margin-right: 20em;
+}
+.webedit-indent-1.webedit-aligncenter {
+	margin-right: 5em;
+}
+textarea.cke_source{
+	font-family: "Lucida Console", Consolas, "Andale Mono WT", "Andale Mono", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+	line-height:1.25em;
+	font-size:1.15em;
+}
+
+.cke_panel_block{
+	background-color: #FFFFFF;
+}
+
+.cke_panel_container {
+	background-color: #FFFFFF;
+}
+
+.cke_editable {
+	background-color: #FFFFFF;
+}
+
+.cke_panel_listItem {
+	background-color: #FFFFFF;
+}
+
+/*.cke_panel_listItem a:hover{
+	content: "\2714 ";
+	margin-right: 8px;
+}*/
+
+.cke_panel_listItem.cke_selected a{
+	background-color: #A6A7A2;
+	white-space: nowrap;
+}
+
+.cke_panel_listItem.cke_selected a:before {
+	content: "\2714 ";
+	float: left;
+	margin-right: 8px;
+}
+
+.cke_panel_list .webedit-clearfix {
+	clear: none;
+}

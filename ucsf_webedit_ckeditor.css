@@ -1,0 +1,19 @@
+/* this CSS is specifically for inside the ckeditor iframe ONLY */
+.webedit-content {
+	background: white;
+	padding:3px;
+	height: 100%;
+	margin: 0;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+html {height:100%;}
+
+/* flix class may not be needed */
+.cke_editable{ line-height: normal }
+
+
+.webedit-content p:empty{
+  display:block;
+}

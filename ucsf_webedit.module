@@ -1,0 +1,316 @@
+<?php
+/**
+ * @file
+ * Drupal needs this blank file.
+ */
+
+include_once 'ucsf_webedit.features.inc';
+
+function ucsf_webedit_enable() {
+  //todo:check for existing permissions?
+  drupal_set_message(t('WebEdit user roles might not be enabled yet. You must visit the <a href="@url">settings</a> page to enable use.', array('@url' => url('admin/config/content/formats/webedit'))),'warning');
+  if (module_exists('overlay')==1) {
+    module_disable(array('overlay'), FALSE);
+    drupal_set_message(t('Disabling Overlay module for compatibility with WebEdit'));
+  }
+}
+
+
+/**
+ * Implementation of hook_init()
+ */
+function ucsf_webedit_init() {
+
+  // Adding the webedit css file (floats) to the theme so it will show up in the WYSIWYG
+  drupal_add_css( drupal_get_path( 'module', 'ucsf_webedit') . '/ucsf_webedit.css',
+    array(
+      'group' => CSS_THEME
+      ,'every_page' => TRUE
+      ,'weight' => -10
+    )
+  );
+}
+
+/**
+ * Implementation of hook_cache_Clear()
+ */
+function ucsf_webedit_flush_caches() {
+  /**
+   * begin permissions match-up
+   */
+  //todo: put this somewhere so it only runs when perms change...
+  //get the list of roles that can use webedit text format
+  $webedit_roles = user_roles(false,'use text format webedit');
+  //get all roles as id only
+  $roles = array_keys(user_roles());
+  //array list of permissions to set to match webedit
+  $webedit_perm_match[] = 'access ckeditor link';
+  $webedit_perm_match[] = 'use pasteformat';
+  //a second array for "on only permissions"
+  $webedit_perm_on = array();
+  //define a drupal_alter hook to add/remove permissions to the webedit match-up or on only
+  drupal_alter('ucsf_webedit_permissions',$webedit_perm_match,$webedit_perm_on);
+
+  //loop over the list of role ids
+  foreach ($roles as $role) {
+    //if it's allowed to use webedit, set all perm_match to true
+    if (isset($webedit_roles[$role])){
+      //and enable the relevant permissions for that role
+      user_role_grant_permissions($role,$webedit_perm_match);
+      if (!empty($webedit_perm_on)){
+        user_role_grant_permissions($role,$webedit_perm_on);
+      }
+    }
+    else
+    {
+      //otherwise set the perm_match permissions to off for the roles
+      user_role_revoke_permissions($role,$webedit_perm_match);
+    }
+    //todo: consider setting a message when these are changed
+  }
+  /**
+   * end permissions match-up
+   */
+}
+
+/**
+ * implementation of hook_field_widget_form_alter
+ */
+function ucsf_webedit_field_widget_form_alter(&$element, &$form_state, $context) {
+  //this block adds a tool to automatically switch formats to webedit
+  //look for any elements using the text_format type
+  if (isset($element['#type']) && $element['#type'] == 'text_format') {
+    //create array for deprecated text formats
+    $replaceformats = array();
+    //make webedit_paste unavalible to the UI itself
+    $replaceformats[]='webedit_paste';
+    //let other modules (for sites) modify the list of replaced formats
+    drupal_alter('ucsf_webedit_format_replace', $replaceformats);
+    //if the format matches a deprecated format, switch to webedit.
+    if(in_array($element['#format'], $replaceformats)) {
+      $element['#format'] = 'webedit';
+    }
+
+  }
+}
+
+/**
+ * implemntation of hook_form_alter
+ */
+function ucsf_webedit_form_alter(&$form, &$form_state, $form_id) {
+
+//  dpm($form);
+
+  //this is a place you can rearrange addl form items for node edit
+  if (isset($form['#node_edit_form'])) {
+    //put publishing options first
+    if (isset($form['options'])) {
+      $form['options']['#weight'] = '-10';
+    }
+    //overriden by panopoly, fix?
+    /*
+    if (isset($form['path']['alias'])){
+      $form['path']['alias']['#group'] = 'path';
+    }
+    */
+  }
+  //dpm($form_id);
+  //dpm($form);
+}
+/**
+ * Implmentation of hook_filter_info()
+ */
+function ucsf_webedit_filter_info() {
+  $filters = array();
+  //Provide a UCSF_WEBEDIT filter to selectively fire add-on filters
+  $filters['ucsf_webedit']['title'] = 'WebEdit automatic add-on filters.';
+  //note: future plugins could require other callbacks see https://api.drupal.org/api/drupal/modules!filter!filter.api.php/function/hook_filter_info/7
+  $filters['ucsf_webedit']['process callback'] = 'ucsf_webedit_process_filters';
+  $filters['ucsf_webedit']['description'] = 'Automatically processes filters such as \'Convert Media tags to markup\' and \'\' when avaliable.  They do not need to be set seperately here.';
+
+  $filters['ucsf_webedit_paste'] = array(
+    'title' => t('Webedit Paste Regex Filter'),
+    'description' => t('Additional cleanup for Webedit-paste'),
+    'process callback' => 'ucsf_webedit_paste_process',
+  );
+
+  return $filters;
+}
+
+/**
+ *  process_filters() callback function for ucsf_webedit_filter_info()
+ */
+function ucsf_webedit_process_filters($text, $filter, $format, $langcode, $cache, $cache_id){
+  //if media module is installed
+  if (module_exists('media')) {
+    //run media modules' filter process callback (first)
+    $text = media_wysiwyg_filter($text);
+  }
+  //if picture module is installed
+  if (module_exists('picture')){
+    //run it's filter process callback
+    $text = _picture_filter_process($text, $filter);
+  }
+
+  if (module_exists('ckeditor_link')) {
+    $text = ckeditor_link_filter_process($text, $filter, $format, $langcode, $cache, $cache_id);
+  }
+  //return the filtered (or unaltered) text
+  return $text;
+}
+
+/**
+* Implements filter process callback.
+*/
+function ucsf_webedit_paste_process($text) {
+  $replace["/\r/"] = '';
+
+  //knock out weird tab dots and make them li's (uls have automatically
+  $replace['/\<p\>.{1,2}?\&nbsp\;\&nbsp\;\&nbsp\;\&nbsp\;\&nbsp\;\&nbsp\;\s?(.*?)\<\/p>/s'] = '<li>$1</li>';
+
+  //do something to keep links groovy
+  $base_url_pattern = "/(\<a[^\>]+?href\=[^\>]+?)https?\:\/\/" . preg_quote(preg_replace("/https?\:\/\//", '', $GLOBALS['base_url'])) . "/";
+  $replace[$base_url_pattern] = '$1';
+
+/*
+  //knock out multinbsp
+  $replace['/(\&nbsp\;){2,}/'] = '&nbsp;';
+  //remove empty paragrapgs
+  $replace['/\<p\>(<[^<(p|img)]+?>|\&nbsp\;)+\<\/p\>/'] = '';
+*/
+  //NBSP and space sequence of DOOM
+  //1 convert nbsp to space
+  $replace['/(\&nbsp\;|\t)/'] = ' ';
+  //convert multiple whitespace to 1
+  $replace['/\ {2,}/'] = ' ';
+    //remove empty paragrapgs
+  $replace['/\<p[^\>]*>((\<[^\>p]*>)*|\s|\&nbsp\;)+?\<\/p\>/'] = '';
+  //don't think this matter
+  //$replace['/(\<\/p\>)\s+(\<p[^\>]*\>)/'] = '$1$2';
+
+
+
+  foreach($replace as $expression => $replacement) {
+    $text = preg_replace($expression,$replacement,$text);
+    //dpm(array($text));
+  }
+  return $text;
+}
+
+
+function ucsf_webedit_wysiwyg_editor_settings_alter(&$settings, $context) {
+  // The $context variable contains information about the wysiwyg profile we're using
+  // In this case we just need to check that the editor being used is ckeditor
+
+  if ($context['profile']->format == 'webedit' && $context['profile']->editor == 'ckeditor') {
+
+    // The $settings variable contains all the config options ckeditor uses.
+    // The array keys correspond directly with any setting that can be applied
+    // to CKEditor - as outlined in the CKEditor docs:
+    // http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.config.html
+    // Another way to override configuration is to use your own configuration javascript
+    // file. In this case, we're going to add our own configuration file that will
+
+    // Hold our stylesSet customizations...
+    $settings['customConfig'] = base_path() . drupal_get_path('module', 'ucsf_webedit') . '/ucsf_webedit_config.js';
+
+    //$settings['removePlugins'] = 'image,forms,scyat,clipboard';
+    $settings['removePlugins'] = 'image,forms,scyat,pastefromword';
+
+    if (isset($settings['extraPlugins'])) {
+      $extraplugins = explode(',',$settings['extraPlugins']);
+    }
+    //array of extra plugins to enable
+    $extraplugins[] = 'webkit-span-fix';
+    //define a drupal_alter hook to add/remove extraplugins for webedit
+    drupal_alter('ucsf_webedit_extraplugins',$extraplugins);
+
+    //set extra plugins setting
+    $settings['extraPlugins'] =  implode(',',$extraplugins);
+
+    $settings['disableNativeSpellChecker'] = false;
+
+//    $settings['format_tags'] = 'Paragraph;h2;h3;h4;h5;h6;pre;address;div';
+    $settings['format_tags'] = 'p;h2;h3;h4;h5;h6;div';
+    $settings['format_tags'] .= ";code;cite;strike;sup;sub";
+    $settings['format_Paragraph'] = array('name' => 'Paragraph', 'element' => 'p');
+    $settings['format_code'] = array('name' => 'Source code', 'element' => 'code');
+    $settings['format_cite'] = array('name' => 'Citation', 'element' => 'cite');
+    $settings['format_strike'] = array('name' => 'Strikethrough', 'element' => 'del');
+    $settings['format_sup'] = array('name' => 'Superscript', 'element' => 'sup');
+    $settings['format_sub'] = array('name' => 'Subscript', 'element' => 'sub');
+
+    $settings['baseHref'] = $GLOBALS['base_url'] . '/';
+    $settings['bodyClass'] = 'webedit-content';
+
+    //classes so every site can override idendent and alignment settings
+    $settings['indentClasses'] = array('webedit-indent-1','webedit-indent-2','webedit-indent-3','webedit-indent-4');
+    $settings['justifyClasses'] = array('webedit-alignleft', 'webedit-aligncenter', 'webedit-alignright', 'webedit-alignjustify');
+
+
+    //ADD STYLES TO THE STYLES DROPDOWN -- Shouldn't interfere with text format
+    /*
+    $settings['stylesSet'][]= array('name' => 'Float left','element' => 'div','attributes' => array('class' => 'webedit-left'));
+    $settings['stylesSet'][]= array('name' => 'Float right','element' => 'div','attributes' => array('class' => 'webedit-right'));
+    */
+    $settings['stylesSet'][]= array('name' => 'Clearfix p','element' => 'p','attributes' => array('class' => 'webedit-clearfix'));
+    $settings['stylesSet'][]= array('name' => 'Clearfix div','element' => 'div','attributes' => array('class' => 'webedit-clearfix'));
+
+    //setup and run an alter function so that custom modules and themes can extend the styles set!
+    $stylesset = $settings['stylesSet'];
+    drupal_alter('ucsf_webedit_stylesset',$stylesset);
+    $settings['stylesSet'] = $stylesset;
+
+
+    //load the default theme even if using the admin interface
+    //name of the current theme
+    //todo:do we care if this happens to not be the admin theme?
+    global $theme;
+    //name of the default theme
+    //todo:domain support needed?
+    $default_theme = variable_get('theme_default', null);
+    //if not already default
+    if ($default_theme != $theme ) {
+      //load the css for the current theme
+      $current_css = ucsf_webedit_get_css($theme);
+      //load the css for the default theme
+      $default_css = ucsf_webedit_get_css($default_theme);
+      //retain the extra CSS loaded by wysiwyg module (removing the current_css)
+      $other_css = array_diff($settings['contentsCss'],$current_css);
+      //set the wysiwyg contentsCss to the default theme plus other css
+      $settings['contentsCss'] = array_merge($default_css,$other_css);
+      //add the css that is only for the iframe
+      $settings['contentsCss'][] ='/' . drupal_get_path('module', 'ucsf_webedit') . '/ucsf_webedit_ckeditor.css';
+    }
+  //end ckeditor 'if'
+  }
+}
+
+function ucsf_webedit_get_css($theme) {
+  $css = array();
+  $themes = list_themes();
+  $theme_object = $themes[$theme];
+  if (property_exists($theme_object, 'base_themes')){
+    $base_themes = $theme_object->base_themes;
+    foreach ($base_themes as $base_theme => $base_name) {
+      $css += ucsf_webedit_get_css($base_theme);
+    }
+  }
+  if (property_exists($theme_object, 'stylesheets')) {
+    $sheets = $theme_object->stylesheets;
+    if (isset($sheets['all'])){
+      $css += $sheets['all'];
+    }
+    if (isset($sheets['screen'])){
+      $css += $sheets['screen'];
+    }
+  }
+  foreach ($css as $key => $path) {
+    if (strpos($path, '/') !== 0){
+      $css[$key] = '/' . $path;
+    }
+  }
+  return array_values($css);
+
+
+}
