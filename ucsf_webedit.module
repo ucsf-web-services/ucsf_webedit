@@ -165,35 +165,41 @@ function ucsf_webedit_process_filters($text, $filter, $format, $langcode, $cache
 function ucsf_webedit_paste_process($text) {
   $replace["/\r/"] = '';
 
-  //knock out weird tab dots and make them li's (uls have automatically
-  $replace['/\<p\>.{1,2}?\&nbsp\;\&nbsp\;\&nbsp\;\&nbsp\;\&nbsp\;\&nbsp\;\s?(.*?)\<\/p>/s'] = '<li>$1</li>';
 
   //do something to keep links groovy
   $base_url_pattern = "/(\<a[^\>]+?href\=[^\>]+?)https?\:\/\/" . preg_quote(preg_replace("/https?\:\/\//", '', $GLOBALS['base_url'])) . "/";
   $replace[$base_url_pattern] = '$1';
 
-/*
-  //knock out multinbsp
-  $replace['/(\&nbsp\;){2,}/'] = '&nbsp;';
-  //remove empty paragrapgs
-  $replace['/\<p\>(<[^<(p|img)]+?>|\&nbsp\;)+\<\/p\>/'] = '';
-*/
+    //knock out weird tab dots and make them li's (uls have automatically added) needs fix below after p removal
+  $replace['/\<p\>.{1,2}?\&nbsp\;\&nbsp\;\&nbsp\;\&nbsp\;\&nbsp\;\&nbsp\;\s?(.*?)\<\/p>/s'] = '<li>$1</li>';
+
   //NBSP and space sequence of DOOM
   //1 convert nbsp to space
+  //$replace['/(\&nbsp\;|\t)([^$])/'] = ' \2';
   $replace['/(\&nbsp\;|\t)/'] = ' ';
   //convert multiple whitespace to 1
   $replace['/\ {2,}/'] = ' ';
     //remove empty paragrapgs
   $replace['/\<p[^\>]*>((\<[^\>p]*>)*|\s|\&nbsp\;)+?\<\/p\>/'] = '';
-  //don't think this matter
-  //$replace['/(\<\/p\>)\s+(\<p[^\>]*\>)/'] = '$1$2';
+
+  //remove a trailing space
+  $replace['/\ $/'] = '';
+  //remove trailing linesbreaks
+  $replace['/\n{1,}$/'] = '';
+  //remove a trailing break
+  $replace['/\<br\ ?\/?\>$/'] = '';
+
+//fix for trailing li's above, must come after p removal
+  $replace['/\<\/li>\n$/'] = "</li>\n<p></p>";
 
 
+  $dpms = array('base'=>$text);
 
   foreach($replace as $expression => $replacement) {
     $text = preg_replace($expression,$replacement,$text);
-    //dpm(array($text));
+    $dpms[$expression] = $text;
   }
+  //dpm($dpms);
   return $text;
 }
 
