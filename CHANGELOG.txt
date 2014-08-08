@@ -1,23 +1,101 @@
-beta10 move IFRAME specific Css to separate file!
-beta9	clear out table defaults
-beta8	allow HR's
-beta6 	Custom code to load styles from default theme even if loading in admin interface. -- could be separate module actually...
-beta5	Integrated hooks for overriding old formats, defined API
-alpha19 integrated picture module for ucsf_images support && allow caption tag
-alpha18 added hook_ucsf_webedit_permissions_alter(&$webedit_perm_match,&$webedit_perm_on)
-alpha17	css floats to settings array and permissions matchup func
-alpha16	put publishing options first
-alpha15 remove ckeditor_link module perms (buggy) todo:dolve problem
-alpha13 Implemented hot fix for chrome backspace 'feature' --richard rules
-aplha12 white background and css loading
-alpha11 bugfix of missing <th> allowance
-alpha10	Special JS to add media to context, replace CVX, spelling
-alpha9	Custom CKEditor settings only fire for webedit format
-alpha8	Integrate and configure Paste_Format for great pastes!
-alpha7	Give ckeditor_link permissions. (needs refinement)
-alpha6	Integrate Drupal paths via ckeditor_link. Remove alpha5.
-alpha5	Dead-end.
-alpha4	Removes default image stuff in favor of Media module support.
-alpha3	Float styles addition.
-alpha2	Cleanup of buttons. Additions to elements list.
-alpha1	Initial build.
+7.x-1.0-beta12
+-------
+- Upgrade to CKEditor 4.4.3 #3
+- Added Drush makefile #2
+- Added fallback to Image plugin when Media module is not availabe. #6
+
+7.x-1.0-beta11
+-------
+- fix for trailing space paste issue
+
+7.x-1.0-beta10 
+-------
+- move IFRAME specific Css to separate file!
+
+7.x-1.0-beta9
+-------
+- clear out table defaults
+
+7.x-1.0-beta8
+-------
+- allow HR's
+
+7.x-1.0-beta6
+-------
+- Custom code to load styles from default theme even if loading in admin interface. -- could be separate module actually...
+
+7.x-1.0-beta5
+-------
+- Integrated hooks for overriding old formats, defined API
+
+7.x-1.0-alpha19
+-------
+- integrated picture module for ucsf_images support && allow caption tag
+
+7.x-1.0-alpha18
+-------
+- added hook_ucsf_webedit_permissions_alter(&$webedit_perm_match,&$webedit_perm_on)
+
+7.x-1.0-alpha17
+-------
+- css floats to settings array and permissions matchup func
+
+7.x-1.0-alpha16
+-------
+- put publishing options first
+
+7.x-1.0-alpha15
+-------
+- remove ckeditor_link module perms (buggy) todo:dolve problem
+
+7.x-1.0-alpha13
+-------
+- Implemented hot fix for chrome backspace 'feature' --richard rules
+
+7.x-1.0-alpha12
+-------
+- white background and css loading
+
+7.x-1.0-alpha11
+-------
+- bugfix of missing <th> allowance
+
+7.x-1.0-alpha10
+-------
+- Special JS to add media to context, replace CVX, spelling
+
+7.x-1.0-alpha9
+-------
+- Custom CKEditor settings only fire for webedit format
+
+7.x-1.0-alpha8
+-------
+- Integrate and configure Paste_Format for great pastes!
+
+7.x-1.0-alpha7
+-------
+- Give ckeditor_link permissions. (needs refinement)
+
+7.x-1.0-alpha6
+-------
+- Integrate Drupal paths via ckeditor_link. Remove alpha5.
+
+7.x-1.0-alpha5
+------
+- Dead-end.
+
+7.x-1.0-alpha4
+-------
+- Removes default image stuff in favor of Media module support.
+
+7.x-1.0-alpha3
+-------
+- Float styles addition.
+
+7.x-1.0-alpha2
+-------
+- Cleanup of buttons. Additions to elements list.
+
+7.x-1.0-alpha1
+-------
+- Initial build.
