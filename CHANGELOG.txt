@@ -4,6 +4,10 @@
 - Added Drush makefile #2
 - Added fallback to Image plugin when Media module is not availabe. #6
 
+7.x-1.0-beta11
+-------
+- fix for trailing space paste issue
+
 7.x-1.0-beta10 
 -------
 - move IFRAME specific Css to separate file!
