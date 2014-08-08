@@ -31,6 +31,7 @@ function ucsf_webedit_wysiwyg_default_profiles() {
           'NumberedList' => 1,
           'Outdent' => 1,
           'Indent' => 1,
+          'Image' => 1,
           'Undo' => 1,
           'Redo' => 1,
           'Link' => 1,

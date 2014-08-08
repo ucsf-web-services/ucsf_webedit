@@ -205,6 +205,7 @@ function ucsf_webedit_paste_process($text) {
 
 
 function ucsf_webedit_wysiwyg_editor_settings_alter(&$settings, $context) {
+
   // The $context variable contains information about the wysiwyg profile we're using
   // In this case we just need to check that the editor being used is ckeditor
 
@@ -219,22 +220,38 @@ function ucsf_webedit_wysiwyg_editor_settings_alter(&$settings, $context) {
 
     // Hold our stylesSet customizations...
     $settings['customConfig'] = base_path() . drupal_get_path('module', 'ucsf_webedit') . '/ucsf_webedit_config.js';
-
-    //$settings['removePlugins'] = 'image,forms,scyat,clipboard';
-    $settings['removePlugins'] = 'image,forms,scyat,pastefromword';
+    
+    if (isset($settings['removePlugins'])) {
+      $removeplugins = explode(',',$settings['removePlugins']);
+    }
+    else {
+      $removeplugins = array();
+    }
+    $removeplugins[] = 'forms';
+    $removeplugins[] = 'scyat';
 
     if (isset($settings['extraPlugins'])) {
       $extraplugins = explode(',',$settings['extraPlugins']);
     }
-    //array of extra plugins to enable
-    $extraplugins[] = 'webkit-span-fix';
+    else {
+      $extraplugins = array();
+    }
+    //iif using media hide the default image button
+    if (module_exists('media_wysiwyg')) {
+      $removeplugins[] = 'image';
+    }
+
     //define a drupal_alter hook to add/remove extraplugins for webedit
     drupal_alter('ucsf_webedit_extraplugins',$extraplugins);
 
     //set extra plugins setting
+    $settings['removePlugins'] =  implode(',',$removeplugins);
     $settings['extraPlugins'] =  implode(',',$extraplugins);
-
+    //keep native spellchecker
     $settings['disableNativeSpellChecker'] = false;
+    //allow all content in editor since we're filtering so much in and out
+    //note: we could use specifics later in stead of some other filtering if desired.
+    $settings['allowedContent'] = true;
 
 //    $settings['format_tags'] = 'Paragraph;h2;h3;h4;h5;h6;pre;address;div';
     $settings['format_tags'] = 'p;h2;h3;h4;h5;h6;div';
