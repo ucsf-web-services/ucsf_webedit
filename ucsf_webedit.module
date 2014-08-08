@@ -240,21 +240,14 @@ function ucsf_webedit_wysiwyg_editor_settings_alter(&$settings, $context) {
     if (module_exists('media_wysiwyg')) {
       $removeplugins[] = 'image';
     }
-    //otherwise show
-    else {
-      //$removeplugins[] = 'drupal_media';
-    }
-    //dpm($settings);
 
-    //array of extra plugins to enable
-    //$extraplugins[] = 'webkit-span-fix';
     //define a drupal_alter hook to add/remove extraplugins for webedit
     drupal_alter('ucsf_webedit_extraplugins',$extraplugins);
 
     //set extra plugins setting
     $settings['removePlugins'] =  implode(',',$removeplugins);
     $settings['extraPlugins'] =  implode(',',$extraplugins);
-    //keep native spellecheker
+    //keep native spellcheker
     $settings['disableNativeSpellChecker'] = false;
     //allow all content in editor since we're filtering so much in and out
     //note: we could use specifics later in stead of some other filtering if desired.
