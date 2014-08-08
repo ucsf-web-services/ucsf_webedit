@@ -1,3 +1,9 @@
+7.x-1.0-beta12
+-------
+- Upgrade to CKEditor 4.4.3 #3
+- Added Drush makefile #2
+- Added fallback to Image plugin when Media module is not availabe. #6
+
 7.x-1.0-beta10 
 -------
 - move IFRAME specific Css to separate file!
