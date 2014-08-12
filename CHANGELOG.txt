@@ -1,9 +1,6 @@
 7.x-1.0-beta13
 -------
-- Image paste support
-- Allows pasting of IMG tags
-- Reorder Webedit-paste filters
-- New filter encodes media image json stuff, regular filter now deencodes it
+- Image paste support #12
 
 7.x-1.0-beta12
 -------
