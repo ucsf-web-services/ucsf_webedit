@@ -1,3 +1,7 @@
+7.x-1.0-beta13
+-------
+- Image paste support #12
+
 7.x-1.0-beta12
 -------
 - Upgrade to CKEditor 4.4.3 #3

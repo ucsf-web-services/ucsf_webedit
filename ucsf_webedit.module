@@ -133,6 +133,11 @@ function ucsf_webedit_filter_info() {
     'description' => t('Additional cleanup for Webedit-paste'),
     'process callback' => 'ucsf_webedit_paste_process',
   );
+  $filters['ucsf_webedit_imageencode'] = array(
+    'title' => t('Webedit Paste Image Encoding Filter'),
+    'description' => t('Pre-processing for filter_xss compatibility with media images'),
+    'process callback' => 'ucsf_webedit_imageencode_process',
+  );
 
   return $filters;
 }
@@ -160,11 +165,42 @@ function ucsf_webedit_process_filters($text, $filter, $format, $langcode, $cache
 }
 
 /**
+* Implements filter process callback. (image preencoding)
+*/
+function ucsf_webedit_imageencode_process($text) {
+  //only within images, encode all colons and media module att name
+  if (module_exists('media_wysiwyg')) {
+    $text = preg_replace_callback(
+      '/\<img[^\>]*\>/',
+      function ($matches) {
+        return(str_replace("data-file_info", "data-file-info", str_replace(":", "%3A", $matches[0])));
+      }
+      , 
+      $text
+    );
+    return $text;
+  }
+}
+
+/**
 * Implements filter process callback.
 */
 function ucsf_webedit_paste_process($text) {
-  $replace["/\r/"] = '';
+  //only for images, fix the encoding of media-module junk
+  if (module_exists('media_wysiwyg')) {
+    $text = preg_replace_callback(
+      '/\<img[^\>]*\>/',
+      function ($matches) {
+        return(str_replace("data-file-info", "data-file_info", str_replace("%3A", ":", $matches[0])));
+      }
+      , 
+      $text
+    );
+  }
 
+  //normal replacement functions:
+  
+  $replace["/\r/"] = '';
 
   //do something to keep links groovy
   $base_url_pattern = "/(\<a[^\>]+?href\=[^\>]+?)https?\:\/\/" . preg_quote(preg_replace("/https?\:\/\//", '', $GLOBALS['base_url'])) . "/";
@@ -192,17 +228,15 @@ function ucsf_webedit_paste_process($text) {
 //fix for trailing li's above, must come after p removal
   $replace['/\<\/li>\n$/'] = "</li>\n<p></p>";
 
-
-  $dpms = array('base'=>$text);
-
+  $debug = array('base'=>$text);
   foreach($replace as $expression => $replacement) {
     $text = preg_replace($expression,$replacement,$text);
-    $dpms[$expression] = $text;
+    $debug[$expression] = $text;
   }
-  //dpm($dpms);
+  //dpm($debug);
+
   return $text;
 }
-
 
 function ucsf_webedit_wysiwyg_editor_settings_alter(&$settings, $context) {
 
