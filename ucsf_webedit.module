@@ -169,7 +169,7 @@ function ucsf_webedit_process_filters($text, $filter, $format, $langcode, $cache
 */
 function ucsf_webedit_imageencode_process($text) {
   //only within images, encode all colons and media module att name
-  //if (module_exists('media')) {
+  if (module_exists('media_wysiwyg')) {
     $text = preg_replace_callback(
       '/\<img[^\>]*\>/',
       function ($matches) {
@@ -179,7 +179,7 @@ function ucsf_webedit_imageencode_process($text) {
       $text
     );
     return $text;
-  //}
+  }
 }
 
 /**
@@ -187,7 +187,7 @@ function ucsf_webedit_imageencode_process($text) {
 */
 function ucsf_webedit_paste_process($text) {
   //only for images, fix the encoding of media-module junk
-  //if (module_exists('media')) {
+  if (module_exists('media_wysiwyg')) {
     $text = preg_replace_callback(
       '/\<img[^\>]*\>/',
       function ($matches) {
@@ -196,7 +196,7 @@ function ucsf_webedit_paste_process($text) {
       , 
       $text
     );
-  //}
+  }
 
   //normal replacement functions:
   
