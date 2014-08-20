@@ -31,13 +31,13 @@
 .webedit-indent-1:not(.webedit-alignright) {
 	margin-left: 5em;
 }
-.webedit-indent-1:not(.webedit-alignright) {
+.webedit-indent-2:not(.webedit-alignright) {
 	margin-left: 10em;
 }
-.webedit-indent-1:not(.webedit-alignright) {
+.webedit-indent-3:not(.webedit-alignright) {
 	margin-left: 15em;
 }
-.webedit-indent-1:not(.webedit-alignright) {
+.webedit-indent-4:not(.webedit-alignright) {
 	margin-left: 20em;
 }
 .webedit-indent-1.webedit-alignright {
