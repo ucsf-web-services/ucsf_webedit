@@ -1,6 +1,6 @@
 7.x-1.0-beta14
 --------------
-- Fixes Indetation bug caused by copy & paste error in CSS #13
+- Fixes indentation-bug caused by copy & paste error in CSS #13
 
 7.x-1.0-beta13
 -------
