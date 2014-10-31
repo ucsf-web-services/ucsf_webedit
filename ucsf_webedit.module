@@ -146,8 +146,8 @@ function ucsf_webedit_filter_info() {
  *  process_filters() callback function for ucsf_webedit_filter_info()
  */
 function ucsf_webedit_process_filters($text, $filter, $format, $langcode, $cache, $cache_id){
-  //if media module is installed
-  if (module_exists('media')) {
+  //if media wysiwyg module is installed
+  if (module_exists('media_wysiwyg')) {
     //run media modules' filter process callback (first)
     $text = media_wysiwyg_filter($text);
   }
