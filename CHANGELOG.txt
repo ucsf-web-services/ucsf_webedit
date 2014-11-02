@@ -1,3 +1,11 @@
+7.x-1.0-beta15
+--------------
+- Converted installation message level from "warning" to "status" #5
+- Automatically switch between Media and Image plugins #6
+- Bugfix: ABBR element unintentionally stripped during copy/paste #16
+- Added contributing guidelines #17
+- Fixed module existence check #19
+
 7.x-1.0-beta14
 --------------
 - Fixes indentation-bug caused by copy & paste error in CSS #13
