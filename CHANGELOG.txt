@@ -1,3 +1,7 @@
+7.x-1.0-beta17
+--------------
+- Fixed image-paste functionality to work with lastest Media module #27
+
 7.x-1.0-beta16
 --------------
 - Updated CKEditor to version 4.4.7 #25
@@ -28,7 +32,7 @@
 -------
 - fix for trailing space paste issue
 
-7.x-1.0-beta10 
+7.x-1.0-beta10
 -------
 - move IFRAME specific Css to separate file!
 
