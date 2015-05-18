@@ -1,0 +1,14 @@
+name = UCSF WebEdit Lite
+description = A lite version of our user-friendly, site-friendly authoring environment and WYSIWYG.
+core = 7.x
+package = UCSF
+php = 5.2.4
+version = 7.x-1.0-beta3
+project = ucsf_webedit_lite
+dependencies[] = features
+dependencies[] = ucsf_webedit
+dependencies[] = wysiwyg
+features[features_api][] = api:1
+features[filter][] = webedit_lite
+features[wysiwyg][] = webedit_lite
+mtime = 1430335179
