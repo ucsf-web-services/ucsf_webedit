@@ -1,3 +1,7 @@
+7.x-1.0-beta18
+--------------
+- Added WebEdit Lite sub-module. #33
+
 7.x-1.0-beta17
 --------------
 - Fixed image-paste functionality to work with latest Media module #27
