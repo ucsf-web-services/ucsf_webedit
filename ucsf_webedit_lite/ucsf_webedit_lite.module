@@ -3,8 +3,6 @@
  * @file
  */
 
-include_once 'ucsf_webedit_lite.features.inc';
-
 /**
  * Alter/add to the list of Drupal role permissions tied directly to WebEdit
  *
