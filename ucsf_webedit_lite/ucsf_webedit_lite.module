@@ -1,0 +1,33 @@
+<?php
+/**
+ * @file
+ * Drupal needs this blank file.
+ */
+
+include_once 'ucsf_webedit_lite.features.inc';
+
+/**
+ * Alter/add to the list of Drupal role permissions tied directly to WebEdit
+ *
+ * $webedit_perm_match permissions will match the WebEdit text format EXACTLY
+ *
+ * $webedit_perm_on permissions are "soft on"
+ * (role on if allowed to use webedit, otherwise unchanged)
+ *
+ */
+function ucsf_webedit_lite_ucsf_webedit_permissions_alter(&$webedit_perm_match,&$webedit_perm_on) {
+  $webedit_perm_on[] = 'use text format webedit_lite';
+}
+
+function ucsf_webedit_lite_wysiwyg_editor_settings_alter(&$settings, $context) {
+    if ($context['profile']->format == 'webedit_lite' && $context['profile']->editor == 'ckeditor') {
+
+        //keep native spellchecker
+        $settings['disableNativeSpellChecker'] = false;
+        $settings['baseHref'] = $GLOBALS['base_url'] . '/';
+        $settings['bodyClass'] = 'webedit-content';
+        $settings['ForcePasteAsPlainText'] = true;
+        $settings['removePlugins'] = "tabletools,liststyle,contextmenu";
+        $settings['contentsCss'][] ='/' . drupal_get_path('module', 'ucsf_webedit') . '/ucsf_webedit_ckeditor.css';
+    }
+}
